@@ -1,0 +1,19 @@
+# Node
+/node_modules
+
+# Environments
+.env
+
+# Public
+/public
+
+# logs
+logs/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code
+.vscode/
