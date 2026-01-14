@@ -1,11 +1,21 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
+const cors = require('cors');
 require('dotenv').config();
+
+const corsOptions = {
+  origin: process.env.CLIENT_URL,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Content-Type, Authorization',
+  optionsSuccessStatus: 200,
+  credentials: true,
+}
 
 // Middleware
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cors(corsOptions));
 
 // Routes
 app.get('', (req, res) => { return res.send('SoporteUAC API') });
