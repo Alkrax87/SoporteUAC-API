@@ -26,7 +26,7 @@ module.exports.login = async (req, res) => {
 }
 
 module.exports.logout = (req, res) => {
-  res.clearCookie('jwt', '', { httpOnly: true, sameSite: 'lax' });
+  res.clearCookie('jwt', '', { httpOnly: true, expiresIn: 1, sameSite: 'lax' });
   res.status(200).json({ message: 'Logout successful' });
 }
 
@@ -47,3 +47,7 @@ module.exports.resetPassword = async (req, res) => {
     res.status(500).json({ error: 'Failed to reset password' });
   }
 };
+
+module.exports.checkAuth = (req, res) => {
+  res.status(200).json({ message: 'Authenticated' });
+}

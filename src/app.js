@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const corsOptions = {
@@ -16,6 +17,7 @@ const corsOptions = {
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 // Routes
 app.get('', (req, res) => { return res.send('SoporteUAC API') });
