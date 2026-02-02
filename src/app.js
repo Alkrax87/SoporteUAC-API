@@ -24,5 +24,6 @@ app.get('', (req, res) => { return res.send('SoporteUAC API') });
 app.use('/auth', require('./routes/auth.routes'));
 app.use('/users', require('./routes/user.routes'));
 app.use('/facultades', require('./routes/facultad.routes'));
+app.use('/reportes', require('./routes/reporte.routes'));
 
 module.exports = app;
