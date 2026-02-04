@@ -7,6 +7,7 @@ const ReporteSchema = mongoose.Schema(
     type: { type: String, required: true },
     school: { type: String, required: true },
     office: { type: String, required: true },
+    time: { type: String, required: true },
     patrimonialCode: { type: String },
     date: { type: Date, required: true },
   },
