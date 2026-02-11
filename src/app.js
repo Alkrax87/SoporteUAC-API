@@ -25,5 +25,6 @@ app.use('/auth', require('./routes/auth.routes'));
 app.use('/users', require('./routes/user.routes'));
 app.use('/facultades', require('./routes/facultad.routes'));
 app.use('/reportes', require('./routes/reporte.routes'));
+app.use('/dashboard', require('./routes/dashboard.routes'));
 
 module.exports = app;
