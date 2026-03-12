@@ -36,7 +36,7 @@ module.exports.updateReporte = async (req, res) => {
           report: req.body.report,
           description: req.body.description,
           type: req.body.type,
-          school: req.body.facultad,
+          school: req.body.school,
           office: req.body.office,
           time: req.body.time,
           patrimonialCode: req.body.patrimonialCode,
