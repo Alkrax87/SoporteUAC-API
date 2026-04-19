@@ -15,11 +15,11 @@ module.exports.login = async (req, res) => {
     const user = await User.login(username, password);
 
     res.cookie('jwt', createToken(user._id), { httpOnly: true, maxAge: COOKIE_MAX_AGE, sameSite: 'lax' });
-    res.status(200).json({ message: 'Login successful', user: {
-      id: user._id,
+    res.status(200).json({
       name: user.name,
       lastname: user.lastname,
-    }});
+      isAdmin: user.isAdmin
+    });
   } catch (error) {
     res.status(401).json({ error: 'Invalid credentials' });
   }
@@ -48,6 +48,16 @@ module.exports.resetPassword = async (req, res) => {
   }
 };
 
-module.exports.checkAuth = (req, res) => {
-  res.status(200).json({ message: 'Authenticated' });
+module.exports.checkAuth = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password -_id -username');
+
+    res.status(200).json({
+      name: user.name,
+      lastname: user.lastname,
+      isAdmin: user.isAdmin
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to check authentication' });
+  }
 }
