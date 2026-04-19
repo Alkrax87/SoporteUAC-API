@@ -191,3 +191,40 @@ module.exports.getDashboard = async (req, res) => {
     }
   });
 }
+
+module.exports.getDataForExcel = async (req, res) => {
+  try {
+    const startMonth = moment(req.params.month, 'M').tz("America/Lima").startOf('month').toDate();
+    const endMonth = moment(req.params.month, 'M').tz("America/Lima").endOf('month').toDate();
+
+    const facultades = await Facultad.find();
+    const total = await getCountByRange(startMonth, endMonth);
+    const reportes = await Reporte.find({ date: { $gte: startMonth, $lte: endMonth }});
+    const dataByFacultad = await getCountByFacultad(startMonth, endMonth);
+    const dataByType = await getCountByType(startMonth, endMonth);
+    const dataByWeeks = await getCountsByMonthWeeks(startMonth, endMonth);
+
+    const computedReportes = reportes.map((reporte) => {
+      return {
+        report: reporte.report,
+        description: reporte.description,
+        type: reporte.type,
+        school: facultades.find((facultad) => facultad._id.toString() === reporte.school.toString()).name,
+        office: reporte.office,
+        time: reporte.time,
+        patrimonialCode: reporte.patrimonialCode,
+        date: reporte.date,
+      }
+    });
+
+    res.status(200).json({
+      total,
+      reportes: computedReportes,
+      dataByType,
+      dataByFacultad,
+      dataByWeeks
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
