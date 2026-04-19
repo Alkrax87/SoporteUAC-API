@@ -15,6 +15,10 @@ const getCountByRangeAndFacultad = async (startDate, endDate, facultadId) => {
   return Reporte.countDocuments({ school: facultadId, date: { $gte: startDate, $lte: endDate }});
 };
 
+const getCountByRangeAndType = async (startDate, endDate, type) => {
+  return Reporte.countDocuments({ type: type, date: { $gte: startDate, $lte: endDate }});
+}
+
 const getCountByFacultad = async (start, end) => {
   const facultadesData = await Facultad.find();
 
@@ -29,14 +33,14 @@ const getCountByFacultad = async (start, end) => {
 
     result.push({
       facultad: facultad.name,
-      total: count
+      value: count
     });
   }
 
   return result;
 };
 
-const getWeekdayCounts = async () => {
+const getCountsByWeekday = async () => {
   const startWeek = moment().tz("America/Lima").startOf('isoWeek');
 
   const result = [];
@@ -49,7 +53,7 @@ const getWeekdayCounts = async () => {
     const count = await getCountByRange(dayStart, dayEnd);
 
     result.push({
-      day: days[i],
+      key: days[i],
       reported: count
     });
   }
@@ -57,6 +61,72 @@ const getWeekdayCounts = async () => {
   return result;
 };
 
+const getCountsByMonthWeeks = async (startMonth, endMonth) => {
+  const result = [];
+  let current = moment(startMonth).tz("America/Lima").startOf('week');
+
+  let weekIndex = 1;
+
+  while (current.isBefore(endMonth)) {
+    const adjustedStart = moment.max(current, moment(startMonth)).toDate();
+    const adjustedEnd = moment.min(current.clone().endOf('week'), moment(endMonth)).toDate();
+
+    const count = await getCountByRange(adjustedStart, adjustedEnd);
+
+    result.push({
+      key: `Semana ${weekIndex}`,
+      reported: count
+    });
+
+    current.add(1, 'week');
+    weekIndex++;
+  }
+
+  return result;
+};
+
+const getCountsByYearMonths = async (startYear, endYear) => {
+  const result = [];
+  let current = moment(startYear).tz("America/Lima").startOf('month');
+
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  let index = 0;
+
+  while (current.isBefore(endYear)) {
+    const monthStart = current.clone().startOf('month').toDate();
+    const monthEnd = current.clone().endOf('month').toDate();
+
+    const count = await getCountByRange(monthStart, monthEnd);
+
+    result.push({
+      key: months[index],
+      reported: count
+    });
+
+    current.add(1, 'month');
+    index++;
+  }
+
+  return result;
+};
+
+const getCountByType = async (startDate, endDate) => {
+  const types = ['Hardware', 'Software', 'Impresora', 'Red', 'Anexo', 'Accesorios', 'Otros']
+
+  const result = [];
+
+  for (const type of types) {
+    const count = await getCountByRangeAndType(startDate, endDate, type);
+
+    result.push({
+      quarter: type,
+      value: count
+    });
+  }
+
+  return result;
+}
 
 module.exports.getDashboard = async (req, res) => {
   const startToday = moment().tz("America/Lima").startOf('day').toDate();
@@ -102,8 +172,22 @@ module.exports.getDashboard = async (req, res) => {
     { label: 'Este año', value: thisYear, difference: calculateDifference(thisYear, lastYear) }
   ];
 
-  const reportsByFacultad = await getCountByFacultad(startWeek, endWeek);
-  const reportsByWeekday = await getWeekdayCounts();
-
-  res.json({summary, reportsByFacultad, reportsByWeekday});
+  res.json({
+    summary,
+    reportsByTime: {
+      weekDays: await getCountsByWeekday(),
+      monthWeeks: await getCountsByMonthWeeks(startMonth, endMonth),
+      yearMonths: await getCountsByYearMonths(startYear, endYear),
+    },
+    reportsByFacultad: {
+      weekDays: await getCountByFacultad(startWeek, endWeek),
+      monthWeeks: await getCountByFacultad(startMonth, endMonth),
+      yearMonths: await getCountByFacultad(startYear, endYear),
+    },
+    reportsByType: {
+      weekDays: await getCountByType(startWeek, endWeek),
+      monthWeeks: await getCountByType(startMonth, endMonth),
+      yearMonths: await getCountByType(startYear, endYear),
+    }
+  });
 }
