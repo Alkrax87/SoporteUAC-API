@@ -67,7 +67,7 @@ const getCountsByMonthWeeks = async (startMonth, endMonth) => {
 
   let weekIndex = 1;
 
-  while (current.isBefore(endMonth)) {
+  while (current.isSameOrBefore(endMonth)) {
     const adjustedStart = moment.max(current, moment(startMonth)).toDate();
     const adjustedEnd = moment.min(current.clone().endOf('week'), moment(endMonth)).toDate();
 
@@ -93,7 +93,7 @@ const getCountsByYearMonths = async (startYear, endYear) => {
 
   let index = 0;
 
-  while (current.isBefore(endYear)) {
+  while (current.isSameOrBefore(endYear)) {
     const monthStart = current.clone().startOf('month').toDate();
     const monthEnd = current.clone().endOf('month').toDate();
 
@@ -194,8 +194,10 @@ module.exports.getDashboard = async (req, res) => {
 
 module.exports.getDataForExcel = async (req, res) => {
   try {
-    const startMonth = moment(req.params.month, 'M').tz("America/Lima").startOf('month').toDate();
-    const endMonth = moment(req.params.month, 'M').tz("America/Lima").endOf('month').toDate();
+    const { month, year } = req.params;
+
+    const startMonth = moment.tz(`${year}-${month}`,'YYYY-M',"America/Lima").startOf('month').toDate();
+    const endMonth = moment.tz(`${year}-${month}`,'YYYY-M',"America/Lima").endOf('month').toDate();
 
     const facultades = await Facultad.find();
     const total = await getCountByRange(startMonth, endMonth);
