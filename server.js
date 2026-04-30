@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const app = require("./src/app");
 
 const PORT = process.env.PORT || 5000;
-const dbURI = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+const dbURI = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`
 
 const startServer = async () => {
   try {
